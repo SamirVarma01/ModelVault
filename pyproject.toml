@@ -9,7 +9,7 @@ description = "A Model Artifact Management CLI - Git-integrated versioned storag
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
-    {name = "Samir Varma", github = "SamirVarma01"}
+    {name = "Samir Varma"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
