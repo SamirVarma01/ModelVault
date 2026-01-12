@@ -1,0 +1,8 @@
+# ModelVault Configuration File
+# Copy this file to .modelvaultrc and update with your settings
+
+# Cloud storage provider: "s3" or "gcs"
+provider: s3
+
+# Cloud storage bucket name
+bucket: my-model-bucket
