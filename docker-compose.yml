@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  modelvault:
+    build: .
+    image: modelvault:latest
+    container_name: modelvault
+    volumes:
+      # Mount current directory as workspace
+      - .:/workspace
+      # Mount AWS credentials (read-only)
+      - ~/.aws:/root/.aws:ro
+      # Mount GCP credentials if they exist (read-only)
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+    environment:
+      # Pass through AWS environment variables if set
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      # Pass through GCP environment variables if set
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    working_dir: /workspace
+    # Override entrypoint to allow running bash commands
+    # Usage: docker-compose run modelvault <command>
+    stdin_open: true
+    tty: true
+
+# Alternative service for interactive shell access
+  modelvault-shell:
+    build: .
+    image: modelvault:latest
+    container_name: modelvault-shell
+    volumes:
+      - .:/workspace
+      - ~/.aws:/root/.aws:ro
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    working_dir: /workspace
+    entrypoint: ["/bin/bash"]
+    stdin_open: true
+    tty: true
