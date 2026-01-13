@@ -7,7 +7,7 @@ from git.exc import InvalidGitRepositoryError, GitCommandError
 
 
 class GitManager:
-    """Manages Git operations for ModelVault."""
+    """Manages Git operations for NexusML."""
     
     def __init__(self, repo_path: Optional[Path] = None):
         """
@@ -25,7 +25,7 @@ class GitManager:
         except InvalidGitRepositoryError:
             raise RuntimeError(
                 f"Not a Git repository: {self.repo_path}.\n"
-                f"Action: Please initialize a Git repository or run ModelVault from within a Git repository."
+                f"Action: Please initialize a Git repository or run NexusML from within a Git repository."
             )
     
     def get_current_commit_hash(self) -> str:

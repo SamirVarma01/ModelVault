@@ -46,7 +46,7 @@ class MetadataManager:
         if not self.metadata_file.exists():
             raise RuntimeError(
                 f"Model metadata file ({METADATA_FILE}) not found in the current directory.\n"
-                f"Action: Please ensure you are running ModelVault from the project root directory."
+                f"Action: Please ensure you are running NexusML from the project root directory."
             )
     
     def add_model(

@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Demo script to show ModelVault functionality in action.
+Demo script to show NexusML functionality in action.
 This demonstrates the core features without requiring cloud credentials.
 """
 
 import json
 import tempfile
 from pathlib import Path
-from modelvault.git_utils import GitManager
-from modelvault.metadata import MetadataManager
-from modelvault.config import Config
+from nexus.git_utils import GitManager
+from nexus.metadata import MetadataManager
 
 def demo_metadata_operations():
     """Demonstrate metadata management."""
@@ -51,12 +50,12 @@ def demo_metadata_operations():
         )
         
         metadata.save()
-        print("   ✓ Metadata saved to .model_meta.json")
-        
+        print("   ✓ Metadata saved to .nexus_meta.json")
+
         # Show the metadata file
-        print("\n2. Contents of .model_meta.json:")
+        print("\n2. Contents of .nexus_meta.json:")
         print("-" * 60)
-        with open(demo_path / ".model_meta.json") as f:
+        with open(demo_path / ".nexus_meta.json") as f:
             print(json.dumps(json.load(f), indent=2))
         
         # Demonstrate lookups
@@ -115,23 +114,23 @@ def demo_cli_commands():
     
     commands = [
         {
-            "command": "modelvault store ./models/my_model.pkl my_model",
+            "command": "nexus store ./models/my_model.pkl my_model",
             "description": "Stores a model file:\n  - Validates Git repo is clean\n  - Gets current commit hash\n  - Uploads to cloud storage\n  - Creates metadata entry"
         },
         {
-            "command": "modelvault load abc123def456 ./models/restored.pkl",
+            "command": "nexus load abc123def456 ./models/restored.pkl",
             "description": "Loads a model by commit hash:\n  - Looks up storage URI in metadata\n  - Downloads from cloud storage\n  - Saves to specified path"
         },
         {
-            "command": "modelvault load latest ./models/latest.pkl --model-name my_model",
+            "command": "nexus load latest ./models/latest.pkl --model-name my_model",
             "description": "Loads the latest version of a model"
         },
         {
-            "command": "modelvault list",
+            "command": "nexus list",
             "description": "Lists all stored models with metadata"
         },
         {
-            "command": "modelvault rollback abc123def456 my_model",
+            "command": "nexus rollback abc123def456 my_model",
             "description": "Sets a previous version as the latest"
         }
     ]
@@ -144,25 +143,25 @@ def demo_cli_commands():
 def main():
     """Run all demos."""
     print("\n" + "=" * 60)
-    print("MODELVAULT DEMONSTRATION")
+    print("NEXUSML CONTROL PLANE DEMONSTRATION")
     print("=" * 60)
-    print("\nThis demo shows ModelVault's core functionality.")
+    print("\nThis demo shows NexusML's model versioning functionality.")
     print("Note: Full functionality requires cloud credentials (AWS S3 or GCS).\n")
-    
+
     # Run demos
     demo_metadata_operations()
     print("\n")
     demo_git_integration()
     print("\n")
     demo_cli_commands()
-    
+
     print("\n" + "=" * 60)
     print("TO TEST FULL FUNCTIONALITY:")
     print("=" * 60)
-    print("1. Create .modelvaultrc file with your cloud settings")
+    print("1. Create .nexusrc file with your cloud settings")
     print("2. Configure cloud credentials (AWS or GCP)")
     print("3. Create a sample model file")
-    print("4. Run: modelvault store <model_file> <model_name>")
+    print("4. Run: nexus store <model_file> <model_name>")
     print("=" * 60 + "\n")
 
 

@@ -33,7 +33,7 @@ class Config:
         self._load_config()
     
     def _load_config(self) -> None:
-        """Load configuration from .modelvaultrc file."""
+        """Load configuration from .nexusrc file."""
         if self.config_file.exists():
             try:
                 with open(self.config_file, 'r') as f:
@@ -60,7 +60,7 @@ class Config:
         if not bucket:
             raise ValueError(
                 "Bucket name not configured. "
-                "Please set 'bucket' in .modelvaultrc file."
+                "Please set 'bucket' in .nexusrc file."
             )
         return bucket
     
