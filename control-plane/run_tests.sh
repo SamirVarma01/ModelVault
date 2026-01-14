@@ -12,7 +12,7 @@ pip install -e ".[dev]" -q
 
 # Run tests
 echo ""
-echo "🏃 Running tests..."
+echo "Running tests..."
 pytest tests/ -v --tb=short
 
 echo ""

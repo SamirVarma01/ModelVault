@@ -40,7 +40,7 @@ class TestS3Storage:
         assert download_path.read_bytes() == test_content
 
         # Cleanup - delete from S3
-        s3_storage.client.delete_object(
+        s3_storage.s3_client.delete_object(
             Bucket=s3_storage.bucket_name,
             Key=storage_uri
         )
