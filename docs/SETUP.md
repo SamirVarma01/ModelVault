@@ -1,9 +1,10 @@
-# ModelVault Setup Guide
+# NexusML Control Plane Setup Guide
 
 ## Installation
 
-1. Install the package in development mode:
+1. Navigate to the control-plane directory and install in development mode:
    ```bash
+   cd control-plane
    pip install -e .
    ```
 
@@ -23,7 +24,7 @@
      ```
    - Or set `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to a service account key file
 
-3. Create a `.modelvaultrc` configuration file in your project root:
+3. Create a `.nexusrc` configuration file in your project root:
    ```yaml
    provider: s3  # or "gcs"
    bucket: your-bucket-name
@@ -33,48 +34,51 @@
 
 1. **Store a model:**
    ```bash
-   modelvault store ./models/my_model.pkl my_model
+   nexus store ./models/my_model.pkl my_model
    ```
    This will:
    - Check that the Git repository is clean
    - Get the current commit hash
    - Upload the model to cloud storage
-   - Create/update `.model_meta.json`
+   - Create/update `.nexus_meta.json`
    - Prompt you to commit and push the metadata file
 
 2. **Load a model:**
    ```bash
    # Load by commit hash
-   modelvault load abc123def456 ./models/restored_model.pkl
-   
+   nexus load abc123def456 ./models/restored_model.pkl
+
    # Load latest model
-   modelvault load latest ./models/latest_model.pkl --model-name my_model
+   nexus load latest ./models/latest_model.pkl --model-name my_model
    ```
 
 3. **List all stored models:**
    ```bash
-   modelvault list
+   nexus list
    ```
 
 4. **Rollback to a previous version:**
    ```bash
-   modelvault rollback abc123def456 my_model
+   nexus rollback abc123def456 my_model
    ```
 
 ## Project Structure
 
 ```
-ModelVault/
-├── modelvault/
-│   ├── __init__.py
-│   ├── cli.py           # CLI commands
-│   ├── config.py        # Configuration management
-│   ├── storage.py       # Cloud storage abstraction (S3/GCS)
-│   ├── git_utils.py     # Git integration
-│   └── metadata.py      # Metadata management
-├── pyproject.toml       # Package configuration
-├── requirements.txt     # Dependencies
-├── README.md
-└── .modelvaultrc        # Your configuration file (create this)
+NexusML/
+├── control-plane/
+│   ├── nexus/
+│   │   ├── __init__.py
+│   │   ├── cli.py           # CLI commands
+│   │   ├── config.py        # Configuration management
+│   │   ├── storage.py       # Cloud storage abstraction (S3/GCS)
+│   │   ├── git_utils.py     # Git integration
+│   │   └── metadata.py      # Metadata management
+│   ├── tests/               # Test suite
+│   ├── scripts/             # Utility scripts
+│   └── pyproject.toml       # Package configuration
+├── data-plane/              # Inference serving (future)
+├── docs/                    # Documentation
+└── .nexusrc                 # Config file
 
 ```

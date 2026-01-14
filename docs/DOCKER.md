@@ -1,40 +1,41 @@
-# Docker Setup for ModelVault
+# Docker Setup for NexusML
 
-This guide explains how to use ModelVault with Docker for consistent, portable deployment.
+This guide explains how to use NexusML with Docker for consistent, portable deployment.
 
 ## Quick Start
 
 ### 1. Build the Docker Image
 
 ```bash
-docker build -t modelvault:latest .
+cd control-plane
+docker build -t nexusml:latest .
 ```
 
-Or using docker-compose:
+Or using docker-compose from the project root:
 
 ```bash
 docker-compose build
 ```
 
-### 2. Run ModelVault Commands
+### 2. Run NexusML Commands
 
 **Using docker-compose (recommended):**
 
 ```bash
 # Store a model
-docker-compose run --rm modelvault store ./models/my_model.pkl my_model
+docker-compose run --rm nexus store ./models/my_model.pkl my_model
 
 # List models
-docker-compose run --rm modelvault list
+docker-compose run --rm nexus list
 
 # Load a model
-docker-compose run --rm modelvault load abc123def ./models/restored.pkl
+docker-compose run --rm nexus load abc123def ./models/restored.pkl
 
 # Load latest
-docker-compose run --rm modelvault load latest ./models/latest.pkl --model-name my_model
+docker-compose run --rm nexus load latest ./models/latest.pkl --model-name my_model
 
 # Rollback
-docker-compose run --rm modelvault rollback abc123def my_model
+docker-compose run --rm nexus rollback abc123def my_model
 ```
 
 **Using docker directly:**
@@ -43,7 +44,7 @@ docker-compose run --rm modelvault rollback abc123def my_model
 docker run --rm \
   -v $(pwd):/workspace \
   -v ~/.aws:/root/.aws:ro \
-  modelvault:latest store ./models/my_model.pkl my_model
+  nexusml:latest store ./models/my_model.pkl my_model
 ```
 
 ## Configuration
@@ -53,7 +54,7 @@ docker run --rm \
 **Option 1: Mount AWS credentials directory (recommended)**
 ```bash
 # Already configured in docker-compose.yml
-docker-compose run --rm modelvault list
+docker-compose run --rm nexus list
 ```
 
 **Option 2: Environment variables**
@@ -63,7 +64,7 @@ docker run --rm \
   -e AWS_ACCESS_KEY_ID=your_key \
   -e AWS_SECRET_ACCESS_KEY=your_secret \
   -e AWS_DEFAULT_REGION=us-east-1 \
-  modelvault:latest list
+  nexusml:latest list
 ```
 
 **Option 3: Create .env file**
@@ -76,7 +77,7 @@ AWS_DEFAULT_REGION=us-east-1
 EOF
 
 # docker-compose will automatically load it
-docker-compose run --rm modelvault list
+docker-compose run --rm nexus list
 ```
 
 ### Google Cloud Credentials
@@ -84,7 +85,7 @@ docker-compose run --rm modelvault list
 **Option 1: Mount gcloud config directory**
 ```bash
 # Already configured in docker-compose.yml
-docker-compose run --rm modelvault list
+docker-compose run --rm nexus list
 ```
 
 **Option 2: Mount service account key**
@@ -93,7 +94,7 @@ docker run --rm \
   -v $(pwd):/workspace \
   -v /path/to/service-account.json:/creds/key.json:ro \
   -e GOOGLE_APPLICATION_CREDENTIALS=/creds/key.json \
-  modelvault:latest list
+  nexusml:latest list
 ```
 
 ## Interactive Shell Access
@@ -102,10 +103,10 @@ Sometimes you need to debug or run multiple commands:
 
 ```bash
 # Access bash shell inside container
-docker-compose run --rm modelvault-shell
+docker-compose run --rm nexus-shell
 
 # Inside the container, you can run:
-root@container:/workspace# modelvault list
+root@container:/workspace# nexus list
 root@container:/workspace# git status
 root@container:/workspace# ls -la
 root@container:/workspace# exit
@@ -114,11 +115,11 @@ root@container:/workspace# exit
 ## Complete Workflow Example
 
 ```bash
-# 1. Ensure you're in a git repo with .modelvaultrc configured
+# 1. Ensure you're in a git repo with .nexusrc configured
 cd /path/to/your/ml/project
 
-# 2. Create .modelvaultrc
-cat > .modelvaultrc << EOF
+# 2. Create .nexusrc
+cat > .nexusrc << EOF
 provider: s3
 bucket: my-ml-models-bucket
 EOF
@@ -131,21 +132,21 @@ mkdir -p models
 python -c "import pickle; pickle.dump({'weights': [1,2,3]}, open('models/test.pkl', 'wb'))"
 
 # 5. Ensure git is clean
-git add .modelvaultrc
-git commit -m "Add ModelVault config"
+git add .nexusrc
+git commit -m "Add NexusML config"
 
 # 6. Store the model
-docker-compose run --rm modelvault store ./models/test.pkl test_model
+docker-compose run --rm nexus store ./models/test.pkl test_model
 
 # 7. Commit the metadata
-git add .model_meta.json
+git add .nexus_meta.json
 git commit -m "Add model metadata"
 
 # 8. List models
-docker-compose run --rm modelvault list
+docker-compose run --rm nexus list
 
 # 9. Load the model
-docker-compose run --rm modelvault load latest ./models/loaded.pkl --model-name test_model
+docker-compose run --rm nexus load latest ./models/loaded.pkl --model-name test_model
 ```
 
 ## CI/CD Integration
@@ -165,8 +166,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build ModelVault image
-        run: docker build -t modelvault:latest .
+      - name: Build NexusML image
+        run: |
+          cd control-plane
+          docker build -t nexusml:latest .
 
       - name: Store model
         env:
@@ -178,13 +181,13 @@ jobs:
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
             -e AWS_DEFAULT_REGION=us-east-1 \
-            modelvault:latest store ./models/trained_model.pkl production_model
+            nexusml:latest store ./models/trained_model.pkl production_model
 
       - name: Commit metadata
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add .model_meta.json
+          git add .nexus_meta.json
           git commit -m "Update model metadata [skip ci]"
           git push
 ```
@@ -197,15 +200,15 @@ store-model:
   services:
     - docker:dind
   script:
-    - docker build -t modelvault:latest .
+    - cd control-plane && docker build -t nexusml:latest .
     - |
       docker run --rm \
         -v $(pwd):/workspace \
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
         -e AWS_DEFAULT_REGION=us-east-1 \
-        modelvault:latest store ./models/model.pkl my_model
-    - git add .model_meta.json
+        nexusml:latest store ./models/model.pkl my_model
+    - git add .nexus_meta.json
     - git commit -m "Update model metadata"
     - git push
   only:
@@ -224,7 +227,7 @@ docker run --rm \
   --user $(id -u):$(id -g) \
   -v $(pwd):/workspace \
   -v ~/.aws:/root/.aws:ro \
-  modelvault:latest list
+  nexusml:latest list
 
 # Option 2: Fix ownership after running
 sudo chown -R $USER:$USER .
@@ -236,7 +239,7 @@ If you see git configuration warnings:
 
 ```bash
 # Set git config in the container
-docker-compose run --rm modelvault-shell
+docker-compose run --rm nexus-shell
 git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
 exit
@@ -246,7 +249,7 @@ exit
 
 ```bash
 # Verify credentials are mounted
-docker-compose run --rm modelvault-shell
+docker-compose run --rm nexus-shell
 ls -la /root/.aws/
 cat /root/.aws/credentials
 exit
@@ -262,7 +265,7 @@ ls -la ~/.aws/
 pwd  # Should be your project root
 
 # Check if files are visible in container
-docker-compose run --rm modelvault-shell
+docker-compose run --rm nexus-shell
 ls -la /workspace/models/
 exit
 ```
@@ -274,7 +277,7 @@ exit
 For production, you might want to create a custom Dockerfile:
 
 ```dockerfile
-FROM modelvault:latest
+FROM nexusml:latest
 
 # Install additional dependencies
 RUN pip install mlflow wandb
@@ -294,7 +297,7 @@ COPY scripts/ /scripts/
 FROM python:3.11-slim as builder
 WORKDIR /app
 COPY pyproject.toml README.md ./
-COPY modelvault/ ./modelvault/
+COPY nexus/ ./nexus/
 RUN pip install --user -e .
 
 # Runtime stage
@@ -303,7 +306,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 WORKDIR /workspace
-ENTRYPOINT ["modelvault"]
+ENTRYPOINT ["nexus"]
 ```
 
 ## Best Practices
