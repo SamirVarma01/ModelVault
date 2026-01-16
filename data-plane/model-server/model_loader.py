@@ -159,7 +159,6 @@ class ModelLoader:
                 os.remove(tmp_path)
 
     def load(self, key: str) -> BaseModel:
-        """Load model based on configured provider"""
         if self.provider == "s3":
             return self.load_from_s3(key)
         elif self.provider == "gcs":
@@ -170,7 +169,6 @@ class ModelLoader:
             raise ValueError(f"Unknown provider: {self.provider}")
 
     def _load_file(self, path: str) -> BaseModel:
-        """Load model from file based on extension"""
         ext = os.path.splitext(path)[1].lower()
 
         if ext in (".pkl", ".pickle"):
@@ -182,18 +180,15 @@ class ModelLoader:
             return self._load_pickle(path)
 
     def _load_pickle(self, path: str) -> PickleModel:
-        """Load pickle model"""
         with open(path, "rb") as f:
             model = pickle.load(f)
         return PickleModel(model)
 
     def _load_torch(self, path: str) -> TorchModel:
-        """Load PyTorch model"""
         import torch
         model = torch.load(path, map_location="cpu")
         return TorchModel(model)
 
     def _get_suffix(self, key: str) -> str:
-        """Get file suffix from key"""
         ext = os.path.splitext(key)[1]
         return ext if ext else ".pkl"
